@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostulacionController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Http\Request;
@@ -15,4 +16,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('pedido/ver', [ServiciosController::class, 'verPedido']);
     Route::post('pedido/detalle-con-postulaciones', [ServiciosController::class, 'detalleConPostulaciones']);
     Route::post('pedido/finalizar', [ServiciosController::class, 'finalizarPedido']);
+    Route::post('pedido/postulacion/crear', [PostulacionController::class, 'crearPostulacion']);
 });
