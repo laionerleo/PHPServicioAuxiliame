@@ -122,4 +122,46 @@ class ServiciosController extends Controller
 
         return response()->json(['pedido' => $pedido]);
     }
+
+    public function detalleConPostulaciones(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pedido' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = Auth::user();
+
+        $pedido = DB::table('PEDIDO as p')
+            ->join('TIPOPEDIDO as tp', 'p.TipoPedido', '=', 'tp.TipoPedido')
+            ->select(
+                'p.Pedido',
+                'tp.Nombre as TipoPedido',
+                'p.FechaRegistro',
+                'p.Latitud',
+                'p.Longitud',
+                'p.Detalles',
+                DB::raw("CASE p.Estado WHEN 1 THEN 'pendiente' WHEN 2 THEN 'en proceso' WHEN 3 THEN 'finalizado' ELSE 'otro' END as Estado")
+            )
+            ->where('p.Usuario', $user->Usuario)
+            ->where('p.Pedido', $request->pedido)
+            ->first();
+
+        if (!$pedido) {
+            return response()->json(['error' => 'Pedido no encontrado'], 404);
+        }
+
+        $postulaciones = DB::table('POSTULANTE as p')
+            ->join('USUARIO as u', 'p.Usuario', '=', 'u.Usuario')
+            ->select('u.Nombre', 'u.Telefono', 'p.FechaRegistro', 'p.Estado')
+            ->where('p.Pedido', $request->pedido)
+            ->get();
+
+        $pedido->postulaciones = $postulaciones;
+
+        return response()->json(['pedido' => $pedido]);
+    }
 }
