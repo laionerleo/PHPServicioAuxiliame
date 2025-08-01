@@ -65,4 +65,27 @@ class ServiciosController extends Controller
             ]
         ], 201);
     }
+
+    public function listarPedidos(Request $request)
+    {
+        $user = Auth::user();
+
+        $pedidos = DB::table('PEDIDO as p')
+            ->join('TIPOPEDIDO as tp', 'p.TipoPedido', '=', 'tp.TipoPedido')
+            ->leftJoin('POSTULANTE as post', 'p.Pedido', '=', 'post.Pedido')
+            ->select(
+                'p.Pedido',
+                'tp.Nombre as TipoPedido',
+                'p.FechaRegistro',
+                DB::raw("CASE p.Estado WHEN 1 THEN 'pendiente' ELSE 'otro' END as Estado"),
+                'p.Latitud',
+                'p.Longitud',
+                DB::raw('COUNT(post.Pedido) as CantidadPostulantes')
+            )
+            ->where('p.Usuario', $user->Usuario)
+            ->groupBy('p.Pedido', 'tp.Nombre', 'p.FechaRegistro', 'p.Estado', 'p.Latitud', 'p.Longitud')
+            ->get();
+
+        return response()->json(['pedidos' => $pedidos]);
+    }
 }
