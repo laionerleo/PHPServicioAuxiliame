@@ -20,4 +20,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('pedido/postulacion/crear', [PostulacionController::class, 'crearPostulacion']);
     Route::post('pedido/postulacion/aceptar', [PostulacionController::class, 'aceptarPostulacion']);
     Route::post('chat/historial', [ChatController::class, 'historial']);
+    Route::post('chat/enviar', [ChatController::class, 'enviar']);
 });
