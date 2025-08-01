@@ -17,4 +17,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('pedido/detalle-con-postulaciones', [ServiciosController::class, 'detalleConPostulaciones']);
     Route::post('pedido/finalizar', [ServiciosController::class, 'finalizarPedido']);
     Route::post('pedido/postulacion/crear', [PostulacionController::class, 'crearPostulacion']);
+    Route::post('pedido/postulacion/aceptar', [PostulacionController::class, 'aceptarPostulacion']);
 });

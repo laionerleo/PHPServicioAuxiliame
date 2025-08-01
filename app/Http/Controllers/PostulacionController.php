@@ -77,4 +77,69 @@ class PostulacionController extends Controller
             ]
         ], 201);
     }
+
+    public function aceptarPostulacion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pedido' => 'required|integer',
+            'serial' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = Auth::user();
+
+        $pedido = Pedido::where('Pedido', $request->pedido)
+            ->where('Usuario', $user->Usuario)
+            ->first();
+
+        if (!$pedido) {
+            return response()->json(['error' => 'Pedido no encontrado o no le pertenece'], 404);
+        }
+
+        if ($pedido->Estado != 1) {
+            return response()->json(['error' => 'El pedido no está pendiente'], 400);
+        }
+
+        $postulacion = PedidoPostulacion::where('Pedido', $request->pedido)
+            ->where('Serial', $request->serial)
+            ->first();
+
+        if (!$postulacion) {
+            return response()->json(['error' => 'Postulación no encontrada'], 404);
+        }
+
+        DB::transaction(function () use ($request, $user, $pedido, $postulacion) {
+            // Update other postulaciones to 'rechazado'
+            PedidoPostulacion::where('Pedido', $request->pedido)
+                ->where('Serial', '!=', $request->serial)
+                ->update(['Estado' => 'rechazado']);
+
+            // Update the accepted postulacion
+            $postulacion->Estado = 'aceptado';
+            $postulacion->Usr = $user->Usuario;
+            $postulacion->UsrFecha = now()->toDateString();
+            $postulacion->UsrHora = now()->toTimeString();
+            $postulacion->save();
+
+            // Update the pedido
+            $pedido->Estado = 2; // en_proceso
+            $pedido->Usr = $user->Usuario;
+            $pedido->UsrFecha = now()->toDateString();
+            $pedido->UsrHora = now()->toTimeString();
+            $pedido->save();
+        });
+
+        return response()->json([
+            'mensaje' => 'Postulación aceptada correctamente',
+            'postulacion' => [
+                'Pedido' => $postulacion->Pedido,
+                'Serial' => $postulacion->Serial,
+                'Usuario' => $postulacion->Usuario,
+                'Estado' => $postulacion->Estado,
+            ]
+        ]);
+    }
 }
