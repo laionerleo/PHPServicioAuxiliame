@@ -27,7 +27,7 @@ class ChatController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -44,7 +44,7 @@ class ChatController extends Controller
             'error' => false,
             'mensaje' => 'Historial de chat obtenido correctamente',
             'datos' => ['mensajes' => $mensajes]
-        ]);
+        ], 200);
     }
 
     public function enviar(Request $request)
@@ -58,7 +58,7 @@ class ChatController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -73,7 +73,7 @@ class ChatController extends Controller
                 'error' => false,
                 'mensaje' => 'Respuesta generada',
                 'datos' => ['respuesta' => $responseMessage]
-            ]);
+            ], 200);
         }
 
         $aiResponse = $this->getAiResponse($request->mensaje);
@@ -83,7 +83,7 @@ class ChatController extends Controller
             'error' => false,
             'mensaje' => 'Respuesta generada por la IA',
             'datos' => ['respuesta' => $aiResponse]
-        ]);
+        ], 200);
     }
 
     private function saveChatMessage($usuario, $mensaje, $origen)

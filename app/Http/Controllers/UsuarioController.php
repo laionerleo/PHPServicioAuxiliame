@@ -23,7 +23,7 @@ class UsuarioController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = User::create([
@@ -45,6 +45,6 @@ class UsuarioController extends Controller
                     'Rol' => $user->Rol,
                 ]
             ]
-        ], 201);
+        ], 200);
     }
 }

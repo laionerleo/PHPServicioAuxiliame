@@ -29,7 +29,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $tipoPedido = DB::table('TIPOPEDIDO')
@@ -42,7 +42,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'TipoPedido no es válido o no está activo',
                 'datos' => null
-            ], 400);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -74,7 +74,7 @@ class ServiciosController extends Controller
                     'FechaRegistro' => $pedido->FechaRegistro,
                 ]
             ]
-        ], 201);
+        ], 200);
     }
 
     public function listarPedidos(Request $request)
@@ -101,7 +101,7 @@ class ServiciosController extends Controller
             'error' => false,
             'mensaje' => 'Pedidos obtenidos correctamente',
             'datos' => ['pedidos' => $pedidos]
-        ]);
+        ], 200);
     }
 
     public function verPedido(Request $request)
@@ -115,7 +115,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -140,14 +140,14 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Pedido no encontrado',
                 'datos' => null
-            ], 404);
+            ], 200);
         }
 
         return response()->json([
             'error' => false,
             'mensaje' => 'Pedido obtenido correctamente',
             'datos' => ['pedido' => $pedido]
-        ]);
+        ], 200);
     }
 
     public function detalleConPostulaciones(Request $request)
@@ -161,7 +161,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -186,7 +186,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Pedido no encontrado',
                 'datos' => null
-            ], 404);
+            ], 200);
         }
 
         $postulaciones = DB::table('POSTULANTE as p')
@@ -201,7 +201,7 @@ class ServiciosController extends Controller
             'error' => false,
             'mensaje' => 'Detalle de pedido obtenido correctamente',
             'datos' => ['pedido' => $pedido]
-        ]);
+        ], 200);
     }
 
     public function finalizarPedido(Request $request)
@@ -215,7 +215,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -229,7 +229,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'Pedido no encontrado',
                 'datos' => null
-            ], 404);
+            ], 200);
         }
 
         if ($pedido->Estado == 3) {
@@ -237,7 +237,7 @@ class ServiciosController extends Controller
                 'error' => true,
                 'mensaje' => 'El pedido ya está finalizado',
                 'datos' => null
-            ], 400);
+            ], 200);
         }
 
         $pedido->Estado = 3;
@@ -257,6 +257,6 @@ class ServiciosController extends Controller
                     'FechaFinalizacion' => $pedido->FechaFinalizacion,
                 ]
             ]
-        ]);
+        ], 200);
     }
 }

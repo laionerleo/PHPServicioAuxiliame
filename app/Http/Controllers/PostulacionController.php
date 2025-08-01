@@ -29,7 +29,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -39,7 +39,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'El usuario mecánico no está activo',
                 'datos' => null
-            ], 403);
+            ], 200);
         }
 
         $pedido = Pedido::find($request->pedido);
@@ -49,7 +49,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'El pedido no existe o no está pendiente',
                 'datos' => null
-            ], 404);
+            ], 200);
         }
 
         $existingPostulacion = PedidoPostulacion::where('Pedido', $request->pedido)
@@ -61,7 +61,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'Ya se ha postulado a este pedido',
                 'datos' => null
-            ], 409);
+            ], 200);
         }
 
         $nextSerial = (PedidoPostulacion::where('Pedido', $request->pedido)->max('Serial') ?? 0) + 1;
@@ -94,7 +94,7 @@ class PostulacionController extends Controller
                     'Estado' => $postulacion->Estado,
                 ]
             ]
-        ], 201);
+        ], 200);
     }
 
     public function aceptarPostulacion(Request $request)
@@ -109,7 +109,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'Error de validación',
                 'datos' => $validator->errors()
-            ], 422);
+            ], 200);
         }
 
         $user = Auth::user();
@@ -123,7 +123,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'Pedido no encontrado o no le pertenece',
                 'datos' => null
-            ], 404);
+            ], 200);
         }
 
         if ($pedido->Estado != 1) {
@@ -131,7 +131,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'El pedido no está pendiente',
                 'datos' => null
-            ], 400);
+            ], 200);
         }
 
         $postulacion = PedidoPostulacion::where('Pedido', $request->pedido)
@@ -143,7 +143,7 @@ class PostulacionController extends Controller
                 'error' => true,
                 'mensaje' => 'Postulación no encontrada',
                 'datos' => null
-            ], 404);
+            ], 200);
         }
 
         DB::transaction(function () use ($request, $user, $pedido, $postulacion) {
@@ -178,6 +178,6 @@ class PostulacionController extends Controller
                     'Estado' => $postulacion->Estado,
                 ]
             ]
-        ]);
+        ], 200);
     }
 }

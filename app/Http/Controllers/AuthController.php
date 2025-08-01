@@ -26,7 +26,7 @@ class AuthController extends Controller
                 'error' => true,
                 'mensaje' => 'Las credenciales no son válidas',
                 'datos' => null
-            ], 401);
+            ], 200);
         }
 
         try {
@@ -35,14 +35,14 @@ class AuthController extends Controller
                     'error' => true,
                     'mensaje' => 'No se pudo crear el token',
                     'datos' => null
-                ], 500);
+                ], 200);
             }
         } catch (JWTException $e) {
             return response()->json([
                 'error' => true,
                 'mensaje' => 'No se pudo crear el token',
                 'datos' => null
-            ], 500);
+            ], 200);
         }
 
         return response()->json([
@@ -57,6 +57,6 @@ class AuthController extends Controller
                     'Rol' => $user->Rol,
                 ]
             ]
-        ]);
+        ], 200);
     }
 }
