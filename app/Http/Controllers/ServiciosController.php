@@ -25,7 +25,11 @@ class ServiciosController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $tipoPedido = DB::table('TIPOPEDIDO')
@@ -34,7 +38,11 @@ class ServiciosController extends Controller
             ->first();
 
         if (!$tipoPedido) {
-            return response()->json(['error' => 'TipoPedido no es válido o no está activo'], 400);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'TipoPedido no es válido o no está activo',
+                'datos' => null
+            ], 400);
         }
 
         $user = Auth::user();
@@ -53,15 +61,18 @@ class ServiciosController extends Controller
         ]);
 
         return response()->json([
+            'error' => false,
             'mensaje' => 'Pedido registrado correctamente',
-            'pedido' => [
-                'Pedido' => $pedido->Pedido,
-                'Usuario' => $pedido->Usuario,
-                'TipoPedido' => $pedido->TipoPedido,
-                'Latitud' => $pedido->Latitud,
-                'Longitud' => $pedido->Longitud,
-                'Estado' => $pedido->Estado,
-                'FechaRegistro' => $pedido->FechaRegistro,
+            'datos' => [
+                'pedido' => [
+                    'Pedido' => $pedido->Pedido,
+                    'Usuario' => $pedido->Usuario,
+                    'TipoPedido' => $pedido->TipoPedido,
+                    'Latitud' => $pedido->Latitud,
+                    'Longitud' => $pedido->Longitud,
+                    'Estado' => $pedido->Estado,
+                    'FechaRegistro' => $pedido->FechaRegistro,
+                ]
             ]
         ], 201);
     }
@@ -86,7 +97,11 @@ class ServiciosController extends Controller
             ->groupBy('p.Pedido', 'tp.Nombre', 'p.FechaRegistro', 'p.Estado', 'p.Latitud', 'p.Longitud')
             ->get();
 
-        return response()->json(['pedidos' => $pedidos]);
+        return response()->json([
+            'error' => false,
+            'mensaje' => 'Pedidos obtenidos correctamente',
+            'datos' => ['pedidos' => $pedidos]
+        ]);
     }
 
     public function verPedido(Request $request)
@@ -96,7 +111,11 @@ class ServiciosController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
@@ -117,10 +136,18 @@ class ServiciosController extends Controller
             ->first();
 
         if (!$pedido) {
-            return response()->json(['error' => 'Pedido no encontrado'], 404);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Pedido no encontrado',
+                'datos' => null
+            ], 404);
         }
 
-        return response()->json(['pedido' => $pedido]);
+        return response()->json([
+            'error' => false,
+            'mensaje' => 'Pedido obtenido correctamente',
+            'datos' => ['pedido' => $pedido]
+        ]);
     }
 
     public function detalleConPostulaciones(Request $request)
@@ -130,7 +157,11 @@ class ServiciosController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
@@ -151,7 +182,11 @@ class ServiciosController extends Controller
             ->first();
 
         if (!$pedido) {
-            return response()->json(['error' => 'Pedido no encontrado'], 404);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Pedido no encontrado',
+                'datos' => null
+            ], 404);
         }
 
         $postulaciones = DB::table('POSTULANTE as p')
@@ -162,7 +197,11 @@ class ServiciosController extends Controller
 
         $pedido->postulaciones = $postulaciones;
 
-        return response()->json(['pedido' => $pedido]);
+        return response()->json([
+            'error' => false,
+            'mensaje' => 'Detalle de pedido obtenido correctamente',
+            'datos' => ['pedido' => $pedido]
+        ]);
     }
 
     public function finalizarPedido(Request $request)
@@ -172,7 +211,11 @@ class ServiciosController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
@@ -182,11 +225,19 @@ class ServiciosController extends Controller
             ->first();
 
         if (!$pedido) {
-            return response()->json(['error' => 'Pedido no encontrado'], 404);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Pedido no encontrado',
+                'datos' => null
+            ], 404);
         }
 
         if ($pedido->Estado == 3) {
-            return response()->json(['error' => 'El pedido ya está finalizado'], 400);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'El pedido ya está finalizado',
+                'datos' => null
+            ], 400);
         }
 
         $pedido->Estado = 3;
@@ -197,11 +248,14 @@ class ServiciosController extends Controller
         $pedido->save();
 
         return response()->json([
+            'error' => false,
             'mensaje' => 'Pedido finalizado correctamente',
-            'pedido' => [
-                'Pedido' => $pedido->Pedido,
-                'Estado' => 'finalizado',
-                'FechaFinalizacion' => $pedido->FechaFinalizacion,
+            'datos' => [
+                'pedido' => [
+                    'Pedido' => $pedido->Pedido,
+                    'Estado' => 'finalizado',
+                    'FechaFinalizacion' => $pedido->FechaFinalizacion,
+                ]
             ]
         ]);
     }

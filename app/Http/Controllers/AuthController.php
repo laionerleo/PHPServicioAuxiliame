@@ -22,24 +22,40 @@ class AuthController extends Controller
         $user = User::where('Telefono', $credentials['telefono'])->first();
 
         if (!$user || !Hash::check($credentials['contrasena'], $user->contrasena)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Las credenciales no son válidas',
+                'datos' => null
+            ], 401);
         }
 
         try {
             if (!$token = JWTAuth::fromUser($user)) {
-                return response()->json(['error' => 'could_not_create_token'], 500);
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => 'No se pudo crear el token',
+                    'datos' => null
+                ], 500);
             }
         } catch (JWTException $e) {
-            return response()->json(['error' => 'could_not_create_token'], 500);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'No se pudo crear el token',
+                'datos' => null
+            ], 500);
         }
 
         return response()->json([
-            'token' => $token,
-            'usuario' => [
-                'Usuario' => $user->Usuario,
-                'Nombre' => $user->Nombre,
-                'Telefono' => $user->Telefono,
-                'Rol' => $user->Rol,
+            'error' => false,
+            'mensaje' => 'Login exitoso',
+            'datos' => [
+                'token' => $token,
+                'usuario' => [
+                    'Usuario' => $user->Usuario,
+                    'Nombre' => $user->Nombre,
+                    'Telefono' => $user->Telefono,
+                    'Rol' => $user->Rol,
+                ]
             ]
         ]);
     }

@@ -19,7 +19,11 @@ class UsuarioController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = User::create([
@@ -31,12 +35,15 @@ class UsuarioController extends Controller
         ]);
 
         return response()->json([
+            'error' => false,
             'mensaje' => 'Usuario registrado correctamente',
-            'usuario' => [
-                'Usuario' => $user->Usuario,
-                'Nombre' => $user->Nombre,
-                'Telefono' => $user->Telefono,
-                'Rol' => $user->Rol,
+            'datos' => [
+                'usuario' => [
+                    'Usuario' => $user->Usuario,
+                    'Nombre' => $user->Nombre,
+                    'Telefono' => $user->Telefono,
+                    'Rol' => $user->Rol,
+                ]
             ]
         ], 201);
     }

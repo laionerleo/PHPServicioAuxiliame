@@ -23,7 +23,11 @@ class ChatController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
@@ -37,8 +41,9 @@ class ChatController extends Controller
             ->get(['Serial as serial', 'Mensaje as mensaje', 'Origen as origen', 'Fecha as fecha', 'Hora as hora']);
 
         return response()->json([
-            'estado' => 'ok',
-            'mensajes' => $mensajes,
+            'error' => false,
+            'mensaje' => 'Historial de chat obtenido correctamente',
+            'datos' => ['mensajes' => $mensajes]
         ]);
     }
 
@@ -49,7 +54,11 @@ class ChatController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
@@ -60,13 +69,21 @@ class ChatController extends Controller
         if (strtolower(trim($classification)) !== 'sí') {
             $responseMessage = 'Este asistente solo responde preguntas relacionadas con mecánica de vehículos.';
             $this->saveChatMessage($user->Usuario, $responseMessage, 'ia');
-            return response()->json(['estado' => 'ok', 'respuesta' => $responseMessage]);
+            return response()->json([
+                'error' => false,
+                'mensaje' => 'Respuesta generada',
+                'datos' => ['respuesta' => $responseMessage]
+            ]);
         }
 
         $aiResponse = $this->getAiResponse($request->mensaje);
         $this->saveChatMessage($user->Usuario, $aiResponse, 'ia');
 
-        return response()->json(['estado' => 'ok', 'respuesta' => $aiResponse]);
+        return response()->json([
+            'error' => false,
+            'mensaje' => 'Respuesta generada por la IA',
+            'datos' => ['respuesta' => $aiResponse]
+        ]);
     }
 
     private function saveChatMessage($usuario, $mensaje, $origen)

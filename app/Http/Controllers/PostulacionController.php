@@ -25,19 +25,31 @@ class PostulacionController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
 
         if ($user->Estado != 1) {
-            return response()->json(['error' => 'El usuario mecánico no está activo'], 403);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'El usuario mecánico no está activo',
+                'datos' => null
+            ], 403);
         }
 
         $pedido = Pedido::find($request->pedido);
 
         if (!$pedido || $pedido->Estado != 1) {
-            return response()->json(['error' => 'El pedido no existe o no está pendiente'], 404);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'El pedido no existe o no está pendiente',
+                'datos' => null
+            ], 404);
         }
 
         $existingPostulacion = PedidoPostulacion::where('Pedido', $request->pedido)
@@ -45,7 +57,11 @@ class PostulacionController extends Controller
             ->first();
 
         if ($existingPostulacion) {
-            return response()->json(['error' => 'Ya se ha postulado a este pedido'], 409);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Ya se ha postulado a este pedido',
+                'datos' => null
+            ], 409);
         }
 
         $nextSerial = (PedidoPostulacion::where('Pedido', $request->pedido)->max('Serial') ?? 0) + 1;
@@ -66,14 +82,17 @@ class PostulacionController extends Controller
         ]);
 
         return response()->json([
+            'error' => false,
             'mensaje' => 'Postulación registrada correctamente',
-            'postulacion' => [
-                'Pedido' => $postulacion->Pedido,
-                'Serial' => $postulacion->Serial,
-                'Usuario' => $postulacion->Usuario,
-                'TiempoEstimado' => $postulacion->TiempoEstimado,
-                'Precio' => $postulacion->Precio,
-                'Estado' => $postulacion->Estado,
+            'datos' => [
+                'postulacion' => [
+                    'Pedido' => $postulacion->Pedido,
+                    'Serial' => $postulacion->Serial,
+                    'Usuario' => $postulacion->Usuario,
+                    'TiempoEstimado' => $postulacion->TiempoEstimado,
+                    'Precio' => $postulacion->Precio,
+                    'Estado' => $postulacion->Estado,
+                ]
             ]
         ], 201);
     }
@@ -86,7 +105,11 @@ class PostulacionController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error de validación',
+                'datos' => $validator->errors()
+            ], 422);
         }
 
         $user = Auth::user();
@@ -96,11 +119,19 @@ class PostulacionController extends Controller
             ->first();
 
         if (!$pedido) {
-            return response()->json(['error' => 'Pedido no encontrado o no le pertenece'], 404);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Pedido no encontrado o no le pertenece',
+                'datos' => null
+            ], 404);
         }
 
         if ($pedido->Estado != 1) {
-            return response()->json(['error' => 'El pedido no está pendiente'], 400);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'El pedido no está pendiente',
+                'datos' => null
+            ], 400);
         }
 
         $postulacion = PedidoPostulacion::where('Pedido', $request->pedido)
@@ -108,7 +139,11 @@ class PostulacionController extends Controller
             ->first();
 
         if (!$postulacion) {
-            return response()->json(['error' => 'Postulación no encontrada'], 404);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Postulación no encontrada',
+                'datos' => null
+            ], 404);
         }
 
         DB::transaction(function () use ($request, $user, $pedido, $postulacion) {
@@ -133,12 +168,15 @@ class PostulacionController extends Controller
         });
 
         return response()->json([
+            'error' => false,
             'mensaje' => 'Postulación aceptada correctamente',
-            'postulacion' => [
-                'Pedido' => $postulacion->Pedido,
-                'Serial' => $postulacion->Serial,
-                'Usuario' => $postulacion->Usuario,
-                'Estado' => $postulacion->Estado,
+            'datos' => [
+                'postulacion' => [
+                    'Pedido' => $postulacion->Pedido,
+                    'Serial' => $postulacion->Serial,
+                    'Usuario' => $postulacion->Usuario,
+                    'Estado' => $postulacion->Estado,
+                ]
             ]
         ]);
     }
