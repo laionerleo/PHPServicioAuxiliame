@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostulacionController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\UsuarioController;
@@ -18,4 +19,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('pedido/finalizar', [ServiciosController::class, 'finalizarPedido']);
     Route::post('pedido/postulacion/crear', [PostulacionController::class, 'crearPostulacion']);
     Route::post('pedido/postulacion/aceptar', [PostulacionController::class, 'aceptarPostulacion']);
+    Route::post('chat/historial', [ChatController::class, 'historial']);
 });
