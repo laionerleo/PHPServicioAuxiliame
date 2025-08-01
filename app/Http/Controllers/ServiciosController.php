@@ -164,4 +164,45 @@ class ServiciosController extends Controller
 
         return response()->json(['pedido' => $pedido]);
     }
+
+    public function finalizarPedido(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pedido' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = Auth::user();
+
+        $pedido = Pedido::where('Pedido', $request->pedido)
+            ->where('Usuario', $user->Usuario)
+            ->first();
+
+        if (!$pedido) {
+            return response()->json(['error' => 'Pedido no encontrado'], 404);
+        }
+
+        if ($pedido->Estado == 3) {
+            return response()->json(['error' => 'El pedido ya está finalizado'], 400);
+        }
+
+        $pedido->Estado = 3;
+        $pedido->FechaFinalizacion = now();
+        $pedido->Usr = $user->Usuario;
+        $pedido->UsrFecha = now()->toDateString();
+        $pedido->UsrHora = now()->toTimeString();
+        $pedido->save();
+
+        return response()->json([
+            'mensaje' => 'Pedido finalizado correctamente',
+            'pedido' => [
+                'Pedido' => $pedido->Pedido,
+                'Estado' => 'finalizado',
+                'FechaFinalizacion' => $pedido->FechaFinalizacion,
+            ]
+        ]);
+    }
 }
